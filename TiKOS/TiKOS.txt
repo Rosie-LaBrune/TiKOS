@@ -1,0 +1,12 @@
+## Title: TiKOS
+## APIVersion: 100004
+## SavedVariables: TiKOS_Vars
+
+lib/LibStub/LibStub.lua
+lib/LibAddonMenu-1.0/LibAddonMenu-1.0.lua
+lib/LibMediaProvider-1.0/LibMediaProvider-1.0.lua
+
+TiKOS.lua
+TiKOS.xml
+Bindings.xml
+

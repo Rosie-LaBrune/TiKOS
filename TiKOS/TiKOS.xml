@@ -1,0 +1,83 @@
+<GuiXml>
+
+<Controls>
+<TopLevelControl name="TiKOS" mouseEnabled="true" movable="true">
+
+<Dimensions x="200" y="420"/>
+<Anchor point="TOPLEFT"/>
+
+	<Controls>
+	<Backdrop name="TKOS_BG">
+	<Anchor relativeTo="TiKOS" point="TOPLEFT" offsetX="0" offsetY="0"/>
+	<Dimensions x="180" y="390"/>
+
+		<Controls>
+		<Label name="TKOS_Label" font="ZoFontGameLargeBoldShadow" color="CFDCBD" wrapmode="ELLIPSIS" verticalAlignment="CENTER" text="KOS list">
+			<Anchor relativeTo="TiKOS" point="TOPLEFT" offsetX="10" offsetY="8"/>
+		</Label>
+		</Controls>
+		
+		
+		<Controls>
+		<Backdrop name="TKOS_EditBG" inherits="ZO_ThinBackdrop">
+		<Anchor relativeTo="TiKOS" point="TOPLEFT" offsetX="10" offsetY="35"/>
+		<Dimensions x="160" y="30"/>
+		
+			<Controls>
+			<EditBox name="TKOS_EditBox" multiLine="false" maxInputCharacters="32" inherits="ZO_DefaultEditForBackdrop" text="...">
+			<Anchor relativeTo="TiKOS" point="TOPLEFT" offsetX="15" offsetY="38"/>
+			<Dimensions x="160" y="28"/>
+			</EditBox>
+			</Controls>
+		
+		</Backdrop>
+		</Controls>
+		
+				
+		<Controls>
+		<Backdrop name="TKOS_DeleteBG">
+		<Anchor relativeTo="TiKOS" point="TOPLEFT" offsetX="5" offsetY="70"/>
+		<Dimensions x="20" y="20"/>
+		
+			<Controls>
+			<Button name="TKOS_DeleteButton" font="ZoFontGameLargeBoldShadow" text="-">
+			<Anchor relativeTo="TiKOS" point="TOPLEFT" offsetX="5" offsetY="70"/>
+			<Dimensions x="20" y="20"/>
+			</Button>
+			</Controls>
+					
+		</Backdrop>
+		</Controls>
+				
+	</Backdrop>
+	</Controls>
+	
+</TopLevelControl>
+</Controls>
+
+<Controls>
+<TopLevelControl name="TKOS_TopWarning">
+
+	<OnUpdate>
+	TiKOSUpdate()
+	</OnUpdate>
+	
+	<Controls>
+	<Label name="TKOS_WarningLabel" font="ZoFontChat" color="CF0000" wrapmode="ELLIPSIS" verticalAlignment="CENTER" text="warning!!">
+		<Anchor relativeTo="GuiRoot" point="TOPLEFT" offsetX="450" offsetY="140"/>
+		<Dimensions x="450" y="30"/>
+	</Label>
+	</Controls>	
+</TopLevelControl>
+</Controls>
+
+<Controls>
+<Label name="TKOS_NameLabel" mouseEnabled="true" font="ZoFontChat" virtual="true" color="CFDCBD" wrapmode="ELLIPSIS" verticalAlignment="CENTER" text="name">
+	<Anchor relativeTo="TiKOS" point="TOPLEFT" offsetX="15" offsetY="40"/>
+	<Dimensions x="150" y="30"/>
+</Label>
+</Controls>
+
+
+
+</GuiXml>

@@ -1,0 +1,12 @@
+<Bindings>
+  <Layer name="SI_KEYBINDINGS_LAYER_GENERAL">
+    <Category name="TiKOS">
+      <Action name="TOGGLE_TIKOS">
+        <Down>TiKOSToggleShow()</Down>
+      </Action>
+      <Action name="ADDTARGET_TIKOS">
+        <Down>TiKOSAddTarget()</Down>
+      </Action>
+    </Category>
+  </Layer>
+</Bindings>
