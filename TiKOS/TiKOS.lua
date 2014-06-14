@@ -36,8 +36,6 @@ TKOS.styles = {
 		'soft-shadow-thin'
 	}
 
-local PSEUDO_TYPE 		= 1
-local ACCOUNT_TYPE 		= 2
 local CENTER_COLOR 		= {0.1, 0.1, 0.1, 0.5}
 local EDGE_COLOR 		= {0.2, 0.2, 0.2, 1.0}
 local EDIT_CENTER_COLOR 	= {0,0,0,1}
@@ -46,7 +44,8 @@ local BUTTON_EDGE_COLOR 	= {0.0, 0.0, 0.0, 1.0}
 local SLIDER_TEX			= "/esoui/art/chatwindow/chat_scrollbar_track.dds"
 
 local LABEL_HEIGHT		= 26
-local NB_ROW			= 12	
+local NB_ROW			= 12
+local MAX_GROUP			= 5
 
 local tex = "ESOUI/art/lorelibrary/lorelibrary_scroll.dds"
 
@@ -274,28 +273,17 @@ function TiKOSAddTarget()
 	TKOS:AddKOSName(target)
 end
 
-function TKOS:AddKOSName(text)
-	local ntype = 0
-	local nname = ""
-	
+function TKOS:AddKOSName(nname)
+	local ngroup = 0
+		
 	if (text == "") then return end
-	
-	local first = string.sub(text,1,1)
-	if (first == "@") then
-		return
-		-- can't retrieve character name from account if not friend or guildmate
-		--ntype = ACCOUNT_TYPE
-		--nname = text
-	else	
-		ntype = PSEUDO_TYPE
-		nname = text
-	end
 	
 	-- check if not already
 	local bFound = false
 	local nbEnemy = table.getn(TKOS.kosList)
 	for i=1,nbEnemy do
-		if (TKOS.kosList[i][1] == ntype and TKOS.kosList[i][2] == nname) then
+		--if (TKOS.kosList[i][1] == ntype and TKOS.kosList[i][2] == nname) then
+		if (TKOS.kosList[i][2] == nname) then
 			bFound = true
 			break
 		end
@@ -304,7 +292,7 @@ function TKOS:AddKOSName(text)
 	
 	
 	-- add
-	table.insert(TKOS.kosList,{ntype, nname})
+	table.insert(TKOS.kosList,{ngroup, nname})
 	TKOS.vars.kosList = TKOS.kosList
 		
 	-- update view
@@ -424,6 +412,9 @@ function TKOS:HideContextButton(bHide, labelId)
 		TKOS_GroupButton:ClearAnchors()
 		TKOS_GroupButton:SetAnchor(TOPLEFT,TiKOS,TOPLEFT,35,44+LABEL_HEIGHT*labelId)
 		TKOS_GroupButton:SetHidden(false)
+		local ngroup = TKOS.kosList[TKOS.selectedId][1]
+		local nlabel = self:GetLabelFromGroup(ngroup)
+		TKOS_GroupButton:SetText(nlabel)
 	end
 end
 
@@ -448,8 +439,32 @@ function TKOS:DeleteEnemy()
 end
 
 -- group function
-function TKOS:SetGroupEnemy()
+function TKOS:GetLabelFromGroup(idgroup)
+
+	local glabel = "#"
+	if idgroup > 1 and idgroup <= MAX_GROUP + 1 then
+		glabel = tostring(idgroup-1)
+	end
 	
+	return glabel
+end
+
+function TKOS:SetGroupEnemy()
+	if (TKOS.selectedId < 1 or TKOS.selectedId > table.getn(TKOS.kosList)) then return end
+	
+	local ngroup = TKOS.kosList[TKOS.selectedId][1]
+	ngroup = ngroup + 1
+	if ngroup > MAX_GROUP + 1 then
+		ngroup = 1
+	end
+	d("ngroup = "..tostring(ngroup))
+	
+	TKOS.kosList[TKOS.selectedId][1] = ngroup
+	TKOS.vars.kosList = TKOS.kosList
+	
+	local nlabel = self:GetLabelFromGroup(ngroup)
+	d("nlabel = "..nlabel)
+	TKOS_GroupButton:SetText(nlabel)
 end
 
 
