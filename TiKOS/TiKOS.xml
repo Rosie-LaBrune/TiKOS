@@ -45,10 +45,27 @@
 			<Dimensions x="20" y="20"/>
 			</Button>
 			</Controls>
-					
+							
 		</Backdrop>
 		</Controls>
 				
+				
+		<Controls>
+		<Backdrop name="TKOS_GroupBG">
+		<Anchor relativeTo="TiKOS" point="TOPLEFT" offsetX="30" offsetY="70"/>
+		<Dimensions x="20" y="20"/>
+		
+			<Controls>
+			<Button name="TKOS_GroupButton" font="ZoFontGameLargeBoldShadow" text="#">
+			<Anchor relativeTo="TiKOS" point="TOPLEFT" offsetX="30" offsetY="70"/>
+			<Dimensions x="20" y="20"/>
+			</Button>
+			</Controls>
+							
+		</Backdrop>
+		</Controls>
+		
+		
 	</Backdrop>
 	</Controls>
 	
@@ -63,7 +80,7 @@
 	</OnUpdate>
 	
 	<Controls>
-	<Label name="TKOS_WarningLabel" font="ZoFontChat" color="CF0000" wrapmode="ELLIPSIS" verticalAlignment="CENTER" text="warning!!">
+	<Label name="TKOS_WarningLabel" font="ZoFontChat" color="CF0000" wrapmode="ELLIPSIS" verticalAlignment="CENTER" horizontalAlignment="CENTER" text="warning!!">
 		<Anchor relativeTo="GuiRoot" point="TOPLEFT" offsetX="450" offsetY="140"/>
 		<Dimensions x="450" y="30"/>
 	</Label>

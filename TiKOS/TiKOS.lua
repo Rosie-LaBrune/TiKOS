@@ -20,7 +20,7 @@ TKOS.default		= {
 TKOS.bShow = true
 TKOS.bMovable = true
 TKOS.scrollId = 0
-TKOS.deleteId = 0
+TKOS.selectedId = 0
 TKOS.bActive = false
 
 TKOS.bWarning = false
@@ -56,7 +56,7 @@ function TKOS:OnAddOnLoaded( eventCode, addOnName )
 	
 	if ( addOnName ~= "TiKOS") then return end
 	
-	TiKOS:SetHandler( "OnMouseUp", function() TiKOSSaveAnchor() TKOS:HideDelete(true) TKOS:UpdateView() end )
+	TiKOS:SetHandler( "OnMouseUp", function() TiKOSSaveAnchor() TKOS:HideContextButton(true) TKOS:UpdateView() end )
 			
 	TKOS.vars = ZO_SavedVars:New("TiKOS_Vars",1,"TiKOS",TKOS.default)
 	
@@ -77,7 +77,19 @@ function TKOS:OnAddOnLoaded( eventCode, addOnName )
 	TKOS_DeleteButton:SetMouseOverFontColor(1.0,1.0,1.0,1.0)
 	TKOS_DeleteButton:SetPressedFontColor(0.0,0.0,0.0,1.0)
 	TKOS_DeleteButton:SetHandler("OnClicked", function(self) TKOS:DeleteEnemy(self) end)
-	self:HideDelete(true)
+	
+	
+	-- init group button
+	TKOS_GroupBG:SetCenterColor(unpack(BUTTON_CENTER_COLOR))
+	TKOS_GroupBG:SetEdgeColor(unpack(BUTTON_EDGE_COLOR))
+	TKOS_GroupBG:SetEdgeTexture("", 1, 1, 2)
+	TKOS_GroupButton:SetNormalFontColor(0.5,0.5,0.5,1.0)
+	TKOS_GroupButton:SetMouseOverFontColor(1.0,1.0,1.0,1.0)
+	TKOS_GroupButton:SetPressedFontColor(0.0,0.0,0.0,1.0)
+	TKOS_GroupButton:SetHandler("OnClicked", function(self) TKOS:SetGroupEnemy(self) end)
+
+	self:HideContextButton(true)
+	
 	
 	-- init edit box
 	TKOS_EditBox:SetHandler("OnEnter", function() TKOS:AddName() end)
@@ -297,6 +309,7 @@ function TKOS:AddKOSName(text)
 		
 	-- update view
 	TKOS_EditBox:SetText("")
+	self:HideContextButton(true)
 	self:UpdateView()
 	self:UpdateScroll()
 	if TKOS.slider ~= nil then
@@ -311,7 +324,7 @@ function TKOS:UpdateView()
 		local label = GetControl("TKOS_NameLabel"..tostring(i))
 		if label == nil then
 			label = CreateControlFromVirtual("TKOS_NameLabel", TKOS_BG, "TKOS_NameLabel", i)
-			label:SetHandler("OnMouseUp", function() TKOS:ToggleDelete(i) end)
+			label:SetHandler("OnMouseUp", function() TKOS:ToggleContextButton(i) end)
 		end
 		label:SetHidden(false)
 		label:ClearAnchors()
@@ -355,7 +368,7 @@ end
 function TKOS:OnSliderMove(value)
 	--d(tostring(value))
 	TKOS.scrollId = value
-	self:HideDelete(true)
+	self:HideContextButton(true)
 	self:UpdateView()
 end
 
@@ -373,7 +386,7 @@ function TKOS:OnMouseWheel(delta)
 	TKOS.slider:SetValue(TKOS.scrollId)
 end
 
-function TKOS:ToggleDelete(labelId)
+function TKOS:ToggleContextButton(labelId)
 	
 	--d(tostring(labelId))
 	
@@ -383,17 +396,20 @@ function TKOS:ToggleDelete(labelId)
 	self:UpdateView()
 	
 	label:ClearAnchors()
-	label:SetAnchor(TOPLEFT,TiKOS,TOPLEFT,40,40+LABEL_HEIGHT*labelId)
-	TKOS.deleteId = TKOS.scrollId + labelId
-	self:HideDelete(false,labelId)
+	label:SetAnchor(TOPLEFT,TiKOS,TOPLEFT,60,40+LABEL_HEIGHT*labelId)
+	TKOS.selectedId = TKOS.scrollId + labelId
+	self:HideContextButton(false,labelId)
 	
 end
 
-function TKOS:HideDelete(bHide, labelId)
+function TKOS:HideContextButton(bHide, labelId)
 
 	if (bHide) then
 		TKOS_DeleteBG:SetHidden(true)
 		TKOS_DeleteButton:SetHidden(true)
+		
+		TKOS_GroupBG:SetHidden(true)
+		TKOS_GroupButton:SetHidden(true)
 	else
 		TKOS_DeleteBG:ClearAnchors()
 		TKOS_DeleteBG:SetAnchor(TOPLEFT,TiKOS,TOPLEFT,10,45+LABEL_HEIGHT*labelId)
@@ -401,13 +417,20 @@ function TKOS:HideDelete(bHide, labelId)
 		TKOS_DeleteButton:ClearAnchors()
 		TKOS_DeleteButton:SetAnchor(TOPLEFT,TiKOS,TOPLEFT,10,43+LABEL_HEIGHT*labelId)
 		TKOS_DeleteButton:SetHidden(false)
+		
+		TKOS_GroupBG:ClearAnchors()
+		TKOS_GroupBG:SetAnchor(TOPLEFT,TiKOS,TOPLEFT,35,45+LABEL_HEIGHT*labelId)
+		TKOS_GroupBG:SetHidden(false)
+		TKOS_GroupButton:ClearAnchors()
+		TKOS_GroupButton:SetAnchor(TOPLEFT,TiKOS,TOPLEFT,35,44+LABEL_HEIGHT*labelId)
+		TKOS_GroupButton:SetHidden(false)
 	end
 end
 
 function TKOS:DeleteEnemy()
-	if (TKOS.deleteId < 1 or TKOS.deleteId > table.getn(TKOS.kosList)) then return end
+	if (TKOS.selectedId < 1 or TKOS.selectedId > table.getn(TKOS.kosList)) then return end
 	
-	table.remove(TKOS.kosList,TKOS.deleteId)
+	table.remove(TKOS.kosList,TKOS.selectedId)
 	TKOS.vars.kosList = TKOS.kosList
 	
 	if (table.getn(TKOS.kosList) < NB_ROW) then
@@ -419,10 +442,16 @@ function TKOS:DeleteEnemy()
 		
 	TKOS.scrollId = math.max(0,TKOS.scrollId - 1)
 	
-	self:HideDelete(true)
+	self:HideContextButton(true)
 	self:UpdateView()
 	self:UpdateScroll()
 end
+
+-- group function
+function TKOS:SetGroupEnemy()
+	
+end
+
 
 -- config function
 function TKOS:UpdateWarningMovable()
