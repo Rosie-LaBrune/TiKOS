@@ -13,7 +13,8 @@ TKOS.default		= {
 	fontFamily		= "Univers 67",
 	fontSize		= 38,
 	fontStyle		= "shadow",
-	fontColor		= { 0.81,0,0,1}
+	fontColor		= { 0.81,0,0,1},
+	groupWarning	= {}
 	}
 	
 
@@ -41,6 +42,7 @@ local EDGE_COLOR 		= {0.2, 0.2, 0.2, 1.0}
 local EDIT_CENTER_COLOR 	= {0,0,0,1}
 local BUTTON_CENTER_COLOR= {0.1,0.1,0.1,0.9}
 local BUTTON_EDGE_COLOR 	= {0.0, 0.0, 0.0, 1.0}
+local DEFAULT_GROUP_COLOR = {0.5, 0.5, 0.5, 1.0}
 local SLIDER_TEX			= "/esoui/art/chatwindow/chat_scrollbar_track.dds"
 
 local LABEL_HEIGHT		= 26
@@ -148,16 +150,22 @@ function TKOS:OnTargetChanged()
 	
 	bFound = false
 	idTar = 0
+	idGroup = 1 -- default group id
 	for i=1,table.getn(TKOS.kosList) do
 		if (target == TKOS.kosList[i][2]) then
 			bFound = true
 			idTar = i
+			idGroup = TKOS.kosList[i][1]
 			break
 		end
 	end
 	
 	if (bFound) then
-		self:ShowWarning(target)
+		if idGroup == 1 then
+			self:ShowWarning(target)
+		else 
+			self:ShowGroupWarning(idGroup-1,target)
+		end
 	end
 end
 
@@ -187,6 +195,7 @@ function TKOS:ShowWarning(target)
 		end
 	end
 	
+	TKOS_WarningLabel:SetColor(unpack(self.vars.fontColor))
 	TKOS_WarningLabel:SetText(fullText)
 	
 	TKOS_TopWarning:SetHidden(false)
@@ -194,6 +203,44 @@ function TKOS:ShowWarning(target)
 	TKOS.warningTime = 0
 	--CycleGameCameraPreferredEnemyTarget()
 end
+
+
+function TKOS:ShowWarningGroup(idgroup, target)
+	
+	local groupText, groupColor = self:GetGroupWarning(idgroup)
+	local fullText = groupText
+	local bFound = false
+	local idPercent = 0
+	
+	for i=1,string.len(groupText) do
+		local char = string.sub(groupText,i,i)
+		if (char == "%") then
+			bFound = true
+			idPercent = i
+			break
+		end
+	end
+	
+	if bFound then
+		fullText = ""
+		if (idPercent > 1) then
+			fullText = string.sub(groupText,1,idPercent-1)
+		end
+		fullText = fullText..target
+		if (idPercent < string.len(groupText)) then
+			fullText = fullText..string.sub(groupText,idPercent+1,-1)
+		end
+	end
+	
+	TKOS_WarningLabel:SetColor(unpack(groupColor))
+	TKOS_WarningLabel:SetText(fullText)
+	
+	TKOS_TopWarning:SetHidden(false)
+	TKOS.bWarning = true
+	TKOS.warningTime = 0
+	--CycleGameCameraPreferredEnemyTarget()
+end
+
 
 function TKOS:HideWarning()
 	TKOS.bWarning = false
@@ -457,16 +504,61 @@ function TKOS:SetGroupEnemy()
 	if ngroup > MAX_GROUP + 1 then
 		ngroup = 1
 	end
-	d("ngroup = "..tostring(ngroup))
+	--d("ngroup = "..tostring(ngroup))
 	
 	TKOS.kosList[TKOS.selectedId][1] = ngroup
 	TKOS.vars.kosList = TKOS.kosList
 	
 	local nlabel = self:GetLabelFromGroup(ngroup)
-	d("nlabel = "..nlabel)
+	--d("nlabel = "..nlabel)
 	TKOS_GroupButton:SetText(nlabel)
 end
 
+
+function TKOS:GetGroupWarning(idgroup)
+	
+	for i=1, table.getn(TKOS.vars.groupWarning) do
+		if TKOS.vars.groupWarning[i]["id"] == idgroup then
+			return TKOS.vars.groupWarning[i]["text"], TKOS.vars.groupWarning[i]["color"]
+		end
+	end
+	
+	return "", DEFAULT_GROUP_COLOR
+
+end
+
+function TKOS:SetGroupWarningText(idgroup, gtext)
+	local bFound = false
+	
+	for i=1, table.getn(TKOS.vars.groupWarning) do
+		if TKOS.vars.groupWarning[i]["id"] == idgroup then
+			bFound = true
+			TKOS.vars.groupWarning[i]["text"] = gtext
+			break
+		end
+	end
+	
+	if not bFound then
+		table.insert(TKOS.vars.groupWarning,{["id"]=idgroup, ["text"]=gtext, ["color"]=DEFAULT_GROUP_COLOR})
+	end
+	
+end
+
+function TKOS:SetGroupWarningColor(idgroup, gcolor)
+	local bFound = false
+	
+	for i=1, table.getn(TKOS.vars.groupWarning) do
+		if TKOS.vars.groupWarning[i]["id"] == idgroup then
+			bFound = true
+			TKOS.vars.groupWarning[i]["color"] = gcolor
+			break
+		end
+	end
+	
+	if not bFound then
+		table.insert(TKOS.vars.groupWarning,{["id"]=idgroup, ["text"]="", ["color"]=gcolor})
+	end
+end
 
 -- config function
 function TKOS:UpdateWarningMovable()
@@ -573,4 +665,31 @@ function TKOS:InitConfigPanel()
 			self:ShowWarning("Rosie")
 		end)
 	
+	-- groups options
+	headerName = panelName .. "GroupHeader"
+	LAM:AddHeader(panelId, headerName, "Group")
+	
+	for idg = 1, MAX_GROUP do
+	
+		LAM:AddDescription(panelId, headerName.."Desc"..tostring(idg), "Group #"..tostring(idg))
+		LAM:AddEditBox(panelId, headerName.."Text"..tostring(idg), "Warning Text", "Set the text when a group#"..tostring(idg).." KOS name is on target", 
+		false,
+		function()
+			return self:GetGroupWarning(idg);
+		end,
+		function(value)
+			self:SetGroupWarningText(idg,value)
+			self:ShowWarningGroup(idg,"Rosie")
+		end);
+		LAM:AddColorPicker(panelId,headerName.."Color"..tostring(idg),"Color","Set the color of the warning text of group#"..tostring(idg),
+		function() local gt, gc =  self:GetGroupWarning(idg)
+			return unpack(gc) end,
+		function(r, g, b, a) 
+			self:SetGroupWarningColor(idg,{r,g,b,a})
+			--self:UpdateFont()
+			self:ShowWarningGroup(idg,"Rosie")
+		end)
+	
+	
+	end
 end
