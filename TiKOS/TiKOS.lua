@@ -142,8 +142,8 @@ function TKOS:OnTargetChanged()
 	if not TKOS.bActive then return end
 	
 	local target = GetUnitName("reticleover")
-	--if (target == nil or not IsUnitPlayer("reticleover") or not IsUnitAttackable("reticleover")) then return end
-	if (target == nil or not IsUnitAttackable("reticleover")) then return end
+	if (target == nil or not IsUnitPlayer("reticleover") or not IsUnitAttackable("reticleover")) then return end
+	--if (target == nil or not IsUnitAttackable("reticleover")) then return end
 	
 	--d("-----")
 	--d(GetUnitName("reticleover"))
@@ -164,7 +164,7 @@ function TKOS:OnTargetChanged()
 		if idGroup == 1 then
 			self:ShowWarning(target)
 		else 
-			self:ShowGroupWarning(idGroup-1,target)
+			self:ShowWarningGroup(idGroup-1,target)
 		end
 	end
 end
@@ -258,8 +258,8 @@ function TKOS:OnZoneChanged(zone)
 end
 
 EVENT_MANAGER:RegisterForEvent("TiKOS" , EVENT_ADD_ON_LOADED , function(_event, _name) TKOS:OnAddOnLoaded(_event, _name) end)
---EVENT_MANAGER:RegisterForEvent("TiKOS", EVENT_RETICLE_TARGET_CHANGED, function(_event) TKOS:OnTargetChanged() end)
-EVENT_MANAGER:RegisterForEvent("TiKOS", EVENT_RETICLE_TARGET_PLAYER_CHANGED, function(_event) TKOS:OnTargetChanged() end)
+EVENT_MANAGER:RegisterForEvent("TiKOS", EVENT_RETICLE_TARGET_CHANGED, function(_event) TKOS:OnTargetChanged() end)
+--EVENT_MANAGER:RegisterForEvent("TiKOS", EVENT_RETICLE_TARGET_PLAYER_CHANGED, function(_event) TKOS:OnTargetChanged() end)
 EVENT_MANAGER:RegisterForEvent("TiKOS", EVENT_ZONE_CHANGED, function(_event, _zone, _subzone, _new) TKOS:OnZoneChanged(_zone) end)
 
 function TiKOSUpdate()
@@ -321,7 +321,7 @@ function TiKOSAddTarget()
 end
 
 function TKOS:AddKOSName(nname)
-	local ngroup = 0
+	local ngroup = 1
 		
 	if (text == "") then return end
 	
