@@ -1,5 +1,7 @@
-## Title: TiKOS
-## APIVersion: 100004
+## Title: Ti|cB70E99KOS|r
+## APIVersion: 100007
+## Version: 1.05
+## Author: Rosie
 ## SavedVariables: TiKOS_Vars
 
 lib/LibStub/LibStub.lua
